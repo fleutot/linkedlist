@@ -73,6 +73,22 @@ linkedlist_t linkedlist_destroy(linkedlist_t list)
     }
 }
 
+
+//  ----------------------------------------------------------------------------
+/// \brief  Run the callback function on the data of the first node, then call
+/// itself on the rest of the list until there are no more nodes.
+//  ----------------------------------------------------------------------------
+void linkedlist_run_for_all(linkedlist_t list,
+                            void (*callback) (void * const data))
+{
+    if ((node_t *) list == NULL) {
+        return;
+    } else {
+        callback(((node_t *) list)->data);
+        linkedlist_run_for_all(list->next, callback);
+    }
+}
+
 //******************************************************************************
 // Internal functions
 //******************************************************************************

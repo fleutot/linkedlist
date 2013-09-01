@@ -29,4 +29,16 @@ linkedlist_t linkedlist_add(linkedlist_t dst, void * const data);
 //  ----------------------------------------------------------------------------
 linkedlist_t linkedlist_destroy(linkedlist_t list);
 
+
+//  ----------------------------------------------------------------------------
+/// \brief  Run the callback function passed as parameter on the data of all
+/// nodes in the list passed as parameter. The callback may modify the data,
+/// since the data itself is held by the client module.
+/// \param  list The list to run the callback on.
+/// \param  callback Function pointer to the function to run on data.
+//  ----------------------------------------------------------------------------
+void linkedlist_run_for_all(linkedlist_t list,
+                            void (*callback)(void * const data));
+
+
 #endif // LINKEDLIST_H_INCLUDED
