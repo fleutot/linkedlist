@@ -8,7 +8,7 @@ Copyright (c) 2013 Gauthier Fleutot Ostervall
 #include <assert.h>
 #include <stdbool.h>
 #include <stddef.h>
-
+#include <stdio.h>
 
 //******************************************************************************
 // Module constants
@@ -26,10 +26,12 @@ static int cumulative_sum;
 // Helper functions.
 static void cumulative_add_reset(void);
 static void cumulative_add(void * const a);
+static void display(void * const a);
 
 // Test functions.
 static void test_linkedlist_init(void);
 static void test_linkedlist_run_for_all(void);
+static void test_linkedlist_copy(void);
 
 
 //******************************************************************************
@@ -39,6 +41,7 @@ int main(void)
 {
     test_linkedlist_init();
     test_linkedlist_run_for_all();
+    test_linkedlist_copy();
 }
 
 
@@ -86,4 +89,34 @@ static void test_linkedlist_run_for_all(void)
     assert(cumulative_sum == data_sum);
 
     linkedlist_destroy(list_p);
+}
+
+
+static void test_linkedlist_copy(void)
+{
+    int data[] = {1, 2, 3, 4, 5};
+    int data_sum = 0;
+
+    linkedlist_t *src = linkedlist_create();
+    for (int index = 0; index < sizeof data / sizeof data[0]; index++) {
+        linkedlist_add(src, &data[index]);
+        data_sum += data[index];    // For later comparison.
+    }
+
+    linkedlist_t *dst = linkedlist_create();
+    linkedlist_copy(dst, src, sizeof data[0]);
+
+    cumulative_add_reset();
+    linkedlist_run_for_all(dst, cumulative_add);
+
+    assert(cumulative_sum == data_sum);
+
+    linkedlist_destroy(src);
+    linkedlist_destroy(dst);
+}
+
+
+static void display(void * const a)
+{
+    printf("d: %d\n", *(int *) a);
 }

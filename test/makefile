@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -std=c99 -g -Wall
+CFLAGS = -std=c99 -g -Wall -O3
 
 SRC = ../linkedlist.c linkedlist_test.c
 OBJ = $(SRC:.c=.o)
@@ -14,7 +14,7 @@ $(TARGET): $(OBJ)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	$(RM) *.o $(TARGET)
+	$(RM) ../*.o *.o $(TARGET)
 
 test:
 	$(TARGET)

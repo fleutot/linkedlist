@@ -35,6 +35,19 @@ void linkedlist_add(linkedlist_t *dst, void * const data);
 void linkedlist_destroy(linkedlist_t *list);
 
 
+// ----------------------------------------------------------------------------
+/// \brief Copy the src list to a new dst list. If dst is not an empty list, its
+/// content is destroyed before the copy operation. No memory used by the nodes
+/// or the data of src is reused for dst. The nodes and data of dst are
+/// allocated in this copy function (and freed on destroy).
+/// \param dst Pointer to the list to copy to.
+/// \param src Pointer to the list to copy.
+/// \param data_size The size of one data slot.
+// ----------------------------------------------------------------------------
+void linkedlist_copy(linkedlist_t *dst, linkedlist_t *src,
+                     unsigned int const data_size);
+
+
 //  ----------------------------------------------------------------------------
 /// \brief  Run the callback function passed as parameter on the data of all
 /// nodes in the list passed as parameter. The callback may modify the data,

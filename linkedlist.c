@@ -3,10 +3,13 @@ Copyright (c) 2013 Gauthier Fleutot Ostervall
 ----------------------------------------------------------------------------*/
 #include "linkedlist.h"
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
 
 typedef struct node_t {
+    bool allocated_here;    // flag to free memory at destroy.
     void *data; // Generic data type pointer.
     struct node_t *next;
 } node_t;
@@ -30,6 +33,8 @@ struct linkedlist {
 static void nodes_recursive_destroy(node_t *node_p);
 static void nodes_run_for_all(node_t *node_p,
                               void (*callback)(void * const data));
+static node_t *nodes_recursive_copy(node_t *src,
+                                    unsigned int const data_size);
 
 
 //******************************************************************************
@@ -63,6 +68,7 @@ void linkedlist_add(linkedlist_t *dst, void * const data)
     // Create a whole new node.
     node_t *new_node_p = malloc(sizeof (node_t));
     *new_node_p = (node_t) {
+        .allocated_here = false,
         .data = data,
         .next = NULL
     };
@@ -104,6 +110,21 @@ void linkedlist_run_for_all(linkedlist_t *list,
 }
 
 
+//  ----------------------------------------------------------------------------
+/// \brief  Destroy a possibly non-empty dst list and fill it with a copy of
+/// src. Both nodes and data are copied to new locations, no sharing of memory
+/// between src and dst.
+//  ----------------------------------------------------------------------------
+void linkedlist_copy(linkedlist_t *dst, linkedlist_t *src,
+                     unsigned int const data_size)
+{
+    if (dst->head != NULL) {
+        linkedlist_destroy(dst);
+    }
+    dst->head = nodes_recursive_copy(src->head, data_size);
+}
+
+
 //******************************************************************************
 // Internal functions
 //******************************************************************************
@@ -118,6 +139,9 @@ static void nodes_recursive_destroy(node_t *node_p)
         return;
     } else {
         node_t *rest_of_nodes = (*node_p).next;
+        if (node_p->allocated_here == true) {
+            free(node_p->data);
+        }
         free(node_p);
         nodes_recursive_destroy(rest_of_nodes);
     }
@@ -139,4 +163,37 @@ static void nodes_run_for_all(node_t *node_p,
         callback(node_p->data);
         nodes_run_for_all(node_p->next, callback);
     }
+}
+
+
+//  ----------------------------------------------------------------------------
+/// \brief  Allocate memory for new data (content copied from src) and a new
+/// node. Call itself to copy the next node of src (and populate the current
+/// .next with the returned value).
+/// \param  src Node to copy from.
+/// \param  data_size Data block size.
+/// \return Pointer to the newly created node.
+//  ----------------------------------------------------------------------------
+node_t *nodes_recursive_copy(node_t *src,
+                             unsigned int const data_size)
+{
+    if (src == NULL) {
+        return NULL;
+    }
+
+    // Allocate a new data object and copy.
+    void *new_data = malloc(data_size);
+    if (new_data != NULL) {
+        memcpy(new_data, src->data, data_size);
+    }
+
+    // Create a whole new node.
+    node_t *new_node_p = malloc(sizeof (node_t));
+    *new_node_p = (node_t) {
+        .allocated_here = true, // for freeing memory at destroy.
+        .data = new_data,
+        .next = nodes_recursive_copy(src->next, data_size)
+    };
+
+    return new_node_p;
 }
