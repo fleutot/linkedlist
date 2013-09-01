@@ -47,22 +47,17 @@ int main(void)
 //******************************************************************************
 static void test_linkedlist_init(void)
 {
-    // Create a list a check that it is really created.
-    // Destroy it and check that it is really destroyed.
-    int data;
-    linkedlist_t list = empty_list;
-    list = linkedlist_add(list, &data);
+    linkedlist_t *list_p = linkedlist_create();
 
-    assert(list != empty_list);
+    assert(list_p != NULL);
 
-    list = linkedlist_destroy(list);
-
-    assert(list == empty_list);
+    linkedlist_destroy(list_p);
 }
 
 
-// Helper function to be used as a callback. Its prototype is defined, which
-// explains the use of a static variable of module scope.
+// Helper function to be used as a callback. Its prototype much match that of
+// the callback parameter of linkedlist_run_for_all(), which explains the use of
+// a static variable of module scope.
 static void cumulative_add(void * const a)
 {
     cumulative_sum += *(int *) a;
@@ -77,17 +72,18 @@ static void cumulative_add_reset(void)
 static void test_linkedlist_run_for_all(void)
 {
     // Create a list and add all its elements together.
-    linkedlist_t list = empty_list;
+    linkedlist_t *list_p = linkedlist_create();
     int data[] = {1, 2, 3, 4, 5};
     int data_sum = 0;
 
     for (int index = 0; index < sizeof data / sizeof data[0]; index++) {
-        list = linkedlist_add(list, &data[index]);
-        data_sum += data[index];
+        linkedlist_add(list_p, &data[index]);
+        data_sum += data[index];    // For later comparison.
     }
     cumulative_add_reset();
-    linkedlist_run_for_all(list, cumulative_add);
+    linkedlist_run_for_all(list_p, cumulative_add);
+
     assert(cumulative_sum == data_sum);
 
-    list = linkedlist_destroy(list);
+    linkedlist_destroy(list_p);
 }
