@@ -59,4 +59,17 @@ void linkedlist_run_for_all(linkedlist_t *list,
                             void (*callback)(void * const data));
 
 
+//  ----------------------------------------------------------------------------
+/// \brief  Copy the list from position (0 is head) to its end, into
+/// sublist. New nodes are created, there are no nodes being pointed to twice.
+/// \param  list The list to copy from.
+/// \param  sublist The list to copy to. Overwritten if not empty.
+/// \param  position Where to start copying from in list.
+/// \param  data_size The size in bytes of one data object.
+//  ----------------------------------------------------------------------------
+void linkedlist_sublist_copy(linkedlist_t * const sublist,
+                             linkedlist_t * const list,
+                             unsigned int const position,
+                             unsigned int const data_size);
+
 #endif // LINKEDLIST_H_INCLUDED

@@ -5,6 +5,7 @@ Copyright (c) 2013 Gauthier Fleutot Ostervall
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -61,7 +62,8 @@ linkedlist_t *linkedlist_create(void)
 void linkedlist_add(linkedlist_t *dst, void * const data)
 {
     if (dst == NULL) {
-        // The list needs to be created first.
+        fprintf(stderr,
+                "linkedlist_add: the list needs to be created first.\n");
         return;
     }
 
@@ -106,7 +108,11 @@ void linkedlist_destroy(linkedlist_t *list)
 void linkedlist_run_for_all(linkedlist_t *list,
                             void (*callback) (void * const data))
 {
-    nodes_run_for_all(list->head, callback);
+    if (list != NULL) {
+        nodes_run_for_all(list->head, callback);
+    } else {
+        fprintf(stderr, "linkedlist_run_for_all: list is NULL.\n");
+    }
 }
 
 
@@ -122,6 +128,34 @@ void linkedlist_copy(linkedlist_t *dst, linkedlist_t *src,
         linkedlist_destroy(dst);
     }
     dst->head = nodes_recursive_copy(src->head, data_size);
+}
+
+
+//  ----------------------------------------------------------------------------
+/// \brief  Destroy a possibly non-empty sublist and fill it with a copy of list
+/// from position to its end.
+//  ----------------------------------------------------------------------------
+void linkedlist_sublist_copy(linkedlist_t * const sublist,
+                             linkedlist_t * const list,
+                             unsigned int const position,
+                             unsigned int const data_size)
+{
+    if (list == NULL || sublist == NULL) {
+        fprintf(stderr, "linkedlist_node_get: list or sublist is NULL.\n");
+        return;
+    }
+
+    node_t *walker = list->head;
+
+    for (int index = 0; index < position; index++) {
+        walker = walker->next;
+    }
+
+    if (sublist->head != NULL) {
+        linkedlist_destroy(sublist);
+    }
+
+    sublist->head = nodes_recursive_copy(walker, data_size);
 }
 
 

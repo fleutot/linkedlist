@@ -32,7 +32,7 @@ static void display(void * const a);
 static void test_linkedlist_init(void);
 static void test_linkedlist_run_for_all(void);
 static void test_linkedlist_copy(void);
-
+static void test_linkedlist_sublist_copy(void);
 
 //******************************************************************************
 // Function definitions
@@ -42,6 +42,7 @@ int main(void)
     test_linkedlist_init();
     test_linkedlist_run_for_all();
     test_linkedlist_copy();
+    test_linkedlist_sublist_copy();
 }
 
 
@@ -113,6 +114,33 @@ static void test_linkedlist_copy(void)
 
     linkedlist_destroy(src);
     linkedlist_destroy(dst);
+}
+
+
+static void test_linkedlist_sublist_copy(void)
+{
+    const unsigned int node_index = 2;
+    int data[] = {1, 2, 3, 4, 5};
+    int data_sum = 0;
+
+    linkedlist_t *list = linkedlist_create();
+    for (int index = 0; index < sizeof data / sizeof data[0]; index++) {
+        linkedlist_add(list, &data[index]);
+    }
+    for (int index = node_index; index < sizeof data / sizeof data[0]; index++) {
+        data_sum += data[index];
+    }
+
+    linkedlist_t *sublist = linkedlist_create();
+    linkedlist_sublist_copy(sublist, list, node_index, sizeof data[0]);
+
+    cumulative_add_reset();
+    linkedlist_run_for_all(sublist, cumulative_add);
+
+    assert(cumulative_sum == data_sum);
+
+    linkedlist_destroy(list);
+    linkedlist_destroy(sublist);
 }
 
 
