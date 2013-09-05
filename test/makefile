@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -std=c99 -g -Wall -O3
+CFLAGS = -std=c99 -g -Wall -O3 -Wno-unused-function
 
 SRC = ../linkedlist.c linkedlist_test.c
 OBJ = $(SRC:.c=.o)
@@ -16,5 +16,5 @@ $(TARGET): $(OBJ)
 clean:
 	$(RM) ../*.o *.o $(TARGET)
 
-test:
-	$(TARGET)
+test: $(TARGET)
+	./$(TARGET)

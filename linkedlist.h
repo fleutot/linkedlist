@@ -23,7 +23,7 @@ linkedlist_t *linkedlist_create(void);
 /// \return The updated list. This is useful if dst was empty before calling
 /// this function.
 //  ----------------------------------------------------------------------------
-void linkedlist_add(linkedlist_t *dst, void * const data);
+void linkedlist_add(linkedlist_t *dst, void const * const data);
 
 
 // ----------------------------------------------------------------------------
@@ -56,7 +56,7 @@ void linkedlist_copy(linkedlist_t *dst, linkedlist_t *src,
 /// \param  callback Function pointer to the function to run on data.
 //  ----------------------------------------------------------------------------
 void linkedlist_run_for_all(linkedlist_t *list,
-                            void (*callback)(void * const data));
+                            void (*callback)(void const * const data));
 
 
 //  ----------------------------------------------------------------------------
@@ -71,5 +71,18 @@ void linkedlist_sublist_copy(linkedlist_t * const sublist,
                              linkedlist_t * const list,
                              unsigned int const position,
                              unsigned int const data_size);
+
+//  ----------------------------------------------------------------------------
+/// \brief  Swap the ends of two lists, from defined node index.
+/// \param  list_a
+/// \param  pos_a The index to the first node that must move to the other list.
+/// \param  list_b
+/// \param  pos_b The index to the first node that must move to the other list.
+//  ----------------------------------------------------------------------------
+void linkedlist_cross(linkedlist_t * const list_a,
+                      unsigned int const pos_a,
+                      linkedlist_t * const list_b,
+                      unsigned int const pos_b);
+
 
 #endif // LINKEDLIST_H_INCLUDED

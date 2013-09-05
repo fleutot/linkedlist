@@ -11,7 +11,7 @@ Copyright (c) 2013 Gauthier Fleutot Ostervall
 
 typedef struct node_t {
     bool allocated_here;    // flag to free memory at destroy.
-    void *data; // Generic data type pointer.
+    void const *data;       // Generic data type pointer.
     struct node_t *next;
 } node_t;
 
@@ -33,7 +33,7 @@ struct linkedlist {
 //******************************************************************************
 static void nodes_recursive_destroy(node_t *node_p);
 static void nodes_run_for_all(node_t *node_p,
-                              void (*callback)(void * const data));
+                              void (*callback)(void const * const data));
 static node_t *nodes_recursive_copy(node_t *src,
                                     unsigned int const data_size);
 
@@ -59,7 +59,7 @@ linkedlist_t *linkedlist_create(void)
 /// and link to the new node. If the list was empty before being added to, the
 /// new start of list is the new node itseld.
 //  ----------------------------------------------------------------------------
-void linkedlist_add(linkedlist_t *dst, void * const data)
+void linkedlist_add(linkedlist_t *dst, void const * const data)
 {
     if (dst == NULL) {
         fprintf(stderr,
@@ -106,7 +106,7 @@ void linkedlist_destroy(linkedlist_t *list)
 /// itself on the rest of the list until there are no more nodes.
 //  ----------------------------------------------------------------------------
 void linkedlist_run_for_all(linkedlist_t *list,
-                            void (*callback) (void * const data))
+                            void (*callback) (void const * const data))
 {
     if (list != NULL) {
         nodes_run_for_all(list->head, callback);
@@ -159,6 +159,57 @@ void linkedlist_sublist_copy(linkedlist_t * const sublist,
 }
 
 
+//  ----------------------------------------------------------------------------
+/// \brief  Cross lists by changing the .next pointer of the node before
+/// position. Special case when trying to cross from index 0 is taken care of.
+//  ----------------------------------------------------------------------------
+void linkedlist_cross(linkedlist_t * const list_a,
+                      unsigned int const pos_a,
+                      linkedlist_t * const list_b,
+                      unsigned int const pos_b)
+{
+    if (list_a == NULL || list_b == NULL) {
+        fprintf(stderr, "linkedlist_cross: one of the input lists is NULL.\n");
+        return;
+    }
+
+    node_t *walker_a = list_a->head;
+    // -1 because its the node *pointing to* pos that needs changing.
+    // index needs to be signed, comparison value may be negative.
+    for (int index = 0; index < (int) pos_a - 1; index++) {
+        walker_a = walker_a->next;
+        if (walker_a == NULL) {
+            fprintf(stderr, "linkedlist_cross: list_a reached unexpected termination.\n");
+            return;
+        }
+    }
+
+    node_t *walker_b = list_b->head;
+    for (int index = 0; index < (int) pos_b - 1; index++) {
+        walker_b = walker_b->next;
+        if (walker_b == NULL) {
+            fprintf(stderr, "linkedlist_cross: list_b reached unexpected termination.\n");
+            return;
+        }
+    }
+
+    node_t *start_of_new_part_for_list_b = walker_a->next;
+
+    if (pos_a == 0) {
+        start_of_new_part_for_list_b = list_a->head;
+        list_a->head = walker_b->next;
+    } else {
+        walker_a->next = walker_b->next;
+    }
+
+    if (pos_b == 0) {
+        list_b->head = walker_a->next;
+    } else {
+        walker_b->next = start_of_new_part_for_list_b;
+    }
+}
+
+
 //******************************************************************************
 // Internal functions
 //******************************************************************************
@@ -174,7 +225,7 @@ static void nodes_recursive_destroy(node_t *node_p)
     } else {
         node_t *rest_of_nodes = (*node_p).next;
         if (node_p->allocated_here == true) {
-            free(node_p->data);
+            free((void *) node_p->data);
         }
         free(node_p);
         nodes_recursive_destroy(rest_of_nodes);
@@ -189,7 +240,7 @@ static void nodes_recursive_destroy(node_t *node_p)
 /// \param  callback The function to run on the node's data.
 //  ----------------------------------------------------------------------------
 static void nodes_run_for_all(node_t *node_p,
-                              void (*callback)(void * const data))
+                              void (*callback)(void const * const data))
 {
     if (node_p == NULL) {
         return;
@@ -208,7 +259,7 @@ static void nodes_run_for_all(node_t *node_p,
 /// \param  data_size Data block size.
 /// \return Pointer to the newly created node.
 //  ----------------------------------------------------------------------------
-node_t *nodes_recursive_copy(node_t *src,
+node_t *nodes_recursive_copy(node_t * const src,
                              unsigned int const data_size)
 {
     if (src == NULL) {
