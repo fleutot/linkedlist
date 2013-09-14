@@ -36,7 +36,7 @@ static void nodes_run_for_all(node_t *node_p,
                               void (*callback)(void const * const data));
 static node_t *nodes_recursive_copy(node_t *src,
                                     unsigned int const data_size);
-
+static node_t *nodes_walker(node_t * const start, unsigned int const pos);
 
 //******************************************************************************
 // Function definitions
@@ -210,6 +210,22 @@ void linkedlist_cross(linkedlist_t * const list_a,
 }
 
 
+//  ----------------------------------------------------------------------------
+/// \brief  Walk to the node at position, and get a pointer to the data at that
+/// position.
+/// \param  list
+/// \param  position
+/// \return Pointer to the data at position in list.
+//  ----------------------------------------------------------------------------
+void *linkedlist_data_handle_get(linkedlist_t * const list,
+                                 unsigned int const position)
+{
+    node_t *walker = nodes_walker(list->head, position);
+
+    return (void *) walker->data;
+}
+
+
 //******************************************************************************
 // Internal functions
 //******************************************************************************
@@ -259,8 +275,8 @@ static void nodes_run_for_all(node_t *node_p,
 /// \param  data_size Data block size.
 /// \return Pointer to the newly created node.
 //  ----------------------------------------------------------------------------
-node_t *nodes_recursive_copy(node_t * const src,
-                             unsigned int const data_size)
+static node_t *nodes_recursive_copy(node_t * const src,
+                                    unsigned int const data_size)
 {
     if (src == NULL) {
         return NULL;
@@ -281,4 +297,26 @@ node_t *nodes_recursive_copy(node_t * const src,
     };
 
     return new_node_p;
+}
+
+
+// ----------------------------------------------------------------------------
+/// \brief Walk pos number of nodes from start. If the tail of a list is
+/// reached, go on from head (wrap around).
+/// \param  start   The first node.
+/// \param  pos     Number of steps to take.
+/// \return Pointer to the target node.
+//  ----------------------------------------------------------------------------
+static node_t *nodes_walker(node_t * const start, unsigned int const pos)
+{
+    node_t *walker = start;
+    for (unsigned int i = 0; i < pos; i++) {
+        if (walker->next != NULL) {
+            walker = walker->next;
+        } else {
+            // wrap around.
+            walker = start;
+        }
+    }
+    return walker;
 }

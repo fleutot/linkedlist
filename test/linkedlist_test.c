@@ -50,6 +50,7 @@ static void test_linkedlist_copy(void);
 static void test_linkedlist_sublist_copy(void);
 static void test_linkedlist_cross(void);
 static void test_linkedlist_cross_at_0(void);
+static void test_linkedlist_data_handle_get(void);
 
 
 //******************************************************************************
@@ -63,6 +64,7 @@ int main(void)
     test_linkedlist_sublist_copy();
     test_linkedlist_cross();
     test_linkedlist_cross_at_0();
+    test_linkedlist_data_handle_get();
     printf("All tests passed.\n");
 }
 
@@ -198,6 +200,34 @@ static void test_linkedlist_cross_at_0(void)
     linkedlist_destroy(list_a);
     linkedlist_destroy(list_b);
 }
+
+
+static void test_linkedlist_data_handle_get(void)
+{
+    const int data[] = {11, 12, 13, 14, 15};
+    const unsigned int pos = 3;
+
+    linkedlist_t *list = linkedlist_create();
+    list_populate(list, data, NB_ELEMENTS(data));
+
+    int *result_ptr = (int *) linkedlist_data_handle_get(list, pos);
+
+    assert(result_ptr != NULL);
+    assert(*result_ptr == data[pos]);
+
+    // Test the wrap around functionality.
+    const unsigned int other_pos = 2;
+    result_ptr = (int *) linkedlist_data_handle_get(
+        list,
+        other_pos + NB_ELEMENTS(data)
+        );
+
+    assert(result_ptr != NULL);
+    assert(*result_ptr == data[other_pos]);
+
+    linkedlist_destroy(list);
+}
+
 
 //------------------------------------------------------------------------------
 // Helper functions

@@ -85,4 +85,14 @@ void linkedlist_cross(linkedlist_t * const list_a,
                       unsigned int const pos_b);
 
 
+//  ----------------------------------------------------------------------------
+/// \brief  Get the pointer to the data of the node at position. If position
+/// goes beyond the number of elemnts of list, wrap around (go on form head
+/// after reaching tail).
+/// \param  list The list to explore.
+/// \param  position The index to the node of interest.
+//  ----------------------------------------------------------------------------
+void *linkedlist_data_handle_get(linkedlist_t * const list,
+                                 unsigned int const position);
+
 #endif // LINKEDLIST_H_INCLUDED
