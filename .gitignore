@@ -1,0 +1,3 @@
+*.o
+test/linkedlist_test
+
