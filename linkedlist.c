@@ -48,6 +48,10 @@ static node_t *nodes_walker(node_t * const start, unsigned int const pos);
 linkedlist_t *linkedlist_create(void)
 {
     linkedlist_t *new_list_p = malloc(sizeof (linkedlist_t));
+    if (new_list_p == NULL) {
+        fprintf(stderr, "%s: new_list_p is NULL.\n", __func__);
+        return NULL;
+    }
     new_list_p->head = NULL;
     return new_list_p;
 }
@@ -62,8 +66,7 @@ linkedlist_t *linkedlist_create(void)
 void linkedlist_add(linkedlist_t *dst, void const * const data)
 {
     if (dst == NULL) {
-        fprintf(stderr,
-                "linkedlist_add: the list needs to be created first.\n");
+        fprintf(stderr, "%s: the list needs to be created first.\n", __func__);
         return;
     }
 
@@ -111,7 +114,7 @@ void linkedlist_run_for_all(linkedlist_t *list,
     if (list != NULL) {
         nodes_run_for_all(list->head, callback);
     } else {
-        fprintf(stderr, "linkedlist_run_for_all: list is NULL.\n");
+        fprintf(stderr, "%s: list is NULL.\n", __func__);
     }
 }
 
@@ -141,7 +144,7 @@ void linkedlist_sublist_copy(linkedlist_t * const sublist,
                              unsigned int const data_size)
 {
     if (list == NULL || sublist == NULL) {
-        fprintf(stderr, "linkedlist_node_get: list or sublist is NULL.\n");
+        fprintf(stderr, "%s: list or sublist is NULL.\n", __func__);
         return;
     }
 
@@ -169,7 +172,7 @@ void linkedlist_cross(linkedlist_t * const list_a,
                       unsigned int const pos_b)
 {
     if (list_a == NULL || list_b == NULL) {
-        fprintf(stderr, "linkedlist_cross: one of the input lists is NULL.\n");
+        fprintf(stderr, "%s: one of the input lists is NULL.\n", __func__);
         return;
     }
 
@@ -179,7 +182,8 @@ void linkedlist_cross(linkedlist_t * const list_a,
     for (int index = 0; index < (int) pos_a - 1; index++) {
         walker_a = walker_a->next;
         if (walker_a == NULL) {
-            fprintf(stderr, "linkedlist_cross: list_a reached unexpected termination.\n");
+            fprintf(stderr, "%s: list_a reached unexpected termination.\n",
+                    __func__);
             return;
         }
     }
@@ -188,7 +192,8 @@ void linkedlist_cross(linkedlist_t * const list_a,
     for (int index = 0; index < (int) pos_b - 1; index++) {
         walker_b = walker_b->next;
         if (walker_b == NULL) {
-            fprintf(stderr, "linkedlist_cross: list_b reached unexpected termination.\n");
+            fprintf(stderr, "%s: list_b reached unexpected termination.\n",
+                    __func__);
             return;
         }
     }
