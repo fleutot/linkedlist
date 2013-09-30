@@ -38,6 +38,7 @@ static node_t *nodes_recursive_copy(node_t *src,
                                     unsigned int const data_size);
 static node_t *nodes_walker(node_t * const start, unsigned int const pos);
 
+
 //******************************************************************************
 // Function definitions
 //******************************************************************************
@@ -79,7 +80,7 @@ void linkedlist_add(linkedlist_t *dst, void const * const data)
     };
 
     if (dst->head == NULL) {
-        // NULL head means this list was empy.
+        // NULL head means this list was empty.
         dst->head = new_node_p;
     } else {
         // Walk to the last node.
@@ -94,8 +95,8 @@ void linkedlist_add(linkedlist_t *dst, void const * const data)
 
 
 //  ----------------------------------------------------------------------------
-/// \brief  Free the first node of the list passed as parameter, then call
-/// itself on the rest of the list until there are no more nodes to free.
+/// \brief  Free all nodes of the list passed as parameter, then the list object
+/// itself.
 //  ----------------------------------------------------------------------------
 void linkedlist_destroy(linkedlist_t *list)
 {
@@ -105,8 +106,7 @@ void linkedlist_destroy(linkedlist_t *list)
 
 
 //  ----------------------------------------------------------------------------
-/// \brief  Run the callback function on the data of the first node, then call
-/// itself on the rest of the list until there are no more nodes.
+/// \brief  Run the callback function on all nodes' data member.
 //  ----------------------------------------------------------------------------
 void linkedlist_run_for_all(linkedlist_t *list,
                             void (*callback) (void const * const data))
