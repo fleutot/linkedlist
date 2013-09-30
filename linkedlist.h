@@ -5,6 +5,9 @@ Copyright (c) 2013 Gauthier Fleutot Ostervall
 #ifndef LINKEDLIST_H_INCLUDED
 #define LINKEDLIST_H_INCLUDED
 
+// Sizes are saved as int, make sure this MAX_SIZE is under INT_MAX.
+#define LINKEDLIST_MAX_SIZE (50000U)
+
 // Do not create your own linkedlist_t variables, use the function
 // linkedlist_create().
 typedef struct linkedlist linkedlist_t;
@@ -79,10 +82,8 @@ void linkedlist_sublist_copy(linkedlist_t * const sublist,
 /// \param  list_b
 /// \param  pos_b The index to the first node that must move to the other list.
 //  ----------------------------------------------------------------------------
-void linkedlist_cross(linkedlist_t * const list_a,
-                      unsigned int const pos_a,
-                      linkedlist_t * const list_b,
-                      unsigned int const pos_b);
+void linkedlist_cross(linkedlist_t * const list_a, int const pos_a,
+                      linkedlist_t * const list_b, int const pos_b);
 
 
 //  ----------------------------------------------------------------------------
@@ -94,5 +95,11 @@ void linkedlist_cross(linkedlist_t * const list_a,
 //  ----------------------------------------------------------------------------
 void *linkedlist_data_handle_get(linkedlist_t * const list,
                                  unsigned int const position);
+
+
+//  ----------------------------------------------------------------------------
+/// \brief Get the size of the list passed as parameter.
+//  ----------------------------------------------------------------------------
+int linkedlist_size_get(linkedlist_t * const list);
 
 #endif // LINKEDLIST_H_INCLUDED

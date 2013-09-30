@@ -10,7 +10,6 @@ Copyright (c) 2013 Gauthier Fleutot Ostervall
 #include <stddef.h>
 #include <stdio.h>
 
-
 //******************************************************************************
 // Module macros
 //******************************************************************************
@@ -51,6 +50,7 @@ static void test_linkedlist_sublist_copy(void);
 static void test_linkedlist_cross(void);
 static void test_linkedlist_cross_at_0(void);
 static void test_linkedlist_data_handle_get(void);
+static void test_linkedlist_cross_long(void);
 
 
 //******************************************************************************
@@ -64,6 +64,7 @@ int main(void)
     test_linkedlist_sublist_copy();
     test_linkedlist_cross();
     test_linkedlist_cross_at_0();
+    test_linkedlist_cross_long();
     test_linkedlist_data_handle_get();
     printf("All tests passed.\n");
 }
@@ -113,6 +114,8 @@ static void test_linkedlist_copy(void)
 
     assert(int_arrays_equal(data, read_array, NB_ELEMENTS(data)));
 
+    assert(linkedlist_size_get(src) == linkedlist_size_get(dst));
+
     linkedlist_destroy(src);
     linkedlist_destroy(dst);
 }
@@ -134,6 +137,9 @@ static void test_linkedlist_sublist_copy(void)
     linkedlist_run_for_all(sublist, list_read_to_array);
 
     assert(int_arrays_equal(result, read_array, NB_ELEMENTS(result)));
+
+    assert(linkedlist_size_get(list) - node_index
+           == linkedlist_size_get(sublist));
 
     linkedlist_destroy(list);
     linkedlist_destroy(sublist);
@@ -161,10 +167,12 @@ static void test_linkedlist_cross(void)
     list_read_to_array_reset();
     linkedlist_run_for_all(list_a, list_read_to_array);
     assert(int_arrays_equal(result_a, read_array, NB_ELEMENTS(result_a)));
+    assert(linkedlist_size_get(list_a) == NB_ELEMENTS(result_a));
 
     list_read_to_array_reset();
     linkedlist_run_for_all(list_b, list_read_to_array);
     assert(int_arrays_equal(result_b, read_array, NB_ELEMENTS(result_b)));
+    assert(linkedlist_size_get(list_b) == NB_ELEMENTS(result_b));
 
     linkedlist_destroy(list_a);
     linkedlist_destroy(list_b);
@@ -192,10 +200,35 @@ static void test_linkedlist_cross_at_0(void)
     list_read_to_array_reset();
     linkedlist_run_for_all(list_a, list_read_to_array);
     assert(int_arrays_equal(result_a, read_array, NB_ELEMENTS(result_a)));
+    assert(linkedlist_size_get(list_a) == NB_ELEMENTS(result_a));
 
     list_read_to_array_reset();
     linkedlist_run_for_all(list_b, list_read_to_array);
     assert(int_arrays_equal(result_b, read_array, NB_ELEMENTS(result_b)));
+    assert(linkedlist_size_get(list_b) == NB_ELEMENTS(result_b));
+
+    linkedlist_destroy(list_a);
+    linkedlist_destroy(list_b);
+}
+
+
+static void test_linkedlist_cross_long(void)
+{
+    const int data_a[LINKEDLIST_MAX_SIZE - 10] = {0};
+    const int data_b[20] = {0};
+    const int pos_a = 1;
+    const int pos_b = 19;
+
+    linkedlist_t *list_a = linkedlist_create();
+    linkedlist_t *list_b = linkedlist_create();
+
+    list_populate(list_a, data_a, NB_ELEMENTS(data_a));
+    list_populate(list_b, data_b, NB_ELEMENTS(data_b));
+
+    linkedlist_cross(list_a, pos_a, list_b, pos_b);
+
+    assert(linkedlist_size_get(list_a) == 2);
+    assert(linkedlist_size_get(list_b) == LINKEDLIST_MAX_SIZE);
 
     linkedlist_destroy(list_a);
     linkedlist_destroy(list_b);

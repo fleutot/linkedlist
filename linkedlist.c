@@ -15,8 +15,8 @@ typedef struct node_t {
     struct node_t *next;
 } node_t;
 
-
 struct linkedlist {
+    int size;
     node_t *head;
 };
 
@@ -36,8 +36,8 @@ static void nodes_run_for_all(node_t *node_p,
                               void (*callback)(void const * const data));
 static node_t *nodes_recursive_copy(node_t *src,
                                     unsigned int const data_size);
-static node_t *nodes_walker(node_t * const start, unsigned int const pos);
-
+static node_t *nodes_walker(node_t * const start, int const pos);
+static void length_limit(linkedlist_t * const list, int const limit);
 
 //******************************************************************************
 // Function definitions
@@ -54,6 +54,7 @@ linkedlist_t *linkedlist_create(void)
         return NULL;
     }
     new_list_p->head = NULL;
+    new_list_p->size = 0;
     return new_list_p;
 }
 
@@ -68,6 +69,11 @@ void linkedlist_add(linkedlist_t *dst, void const * const data)
 {
     if (dst == NULL) {
         fprintf(stderr, "%s: the list needs to be created first.\n", __func__);
+        return;
+    }
+
+    if (dst->size >= LINKEDLIST_MAX_SIZE) {
+        // Max reached, which is not an error. Do nothing.
         return;
     }
 
@@ -91,6 +97,7 @@ void linkedlist_add(linkedlist_t *dst, void const * const data)
         // current_node is now the last node of dst.
         current_node->next = new_node_p;
     }
+    dst->size++;
 }
 
 
@@ -131,6 +138,7 @@ void linkedlist_copy(linkedlist_t *dst, linkedlist_t *src,
         linkedlist_destroy(dst);
     }
     dst->head = nodes_recursive_copy(src->head, data_size);
+    dst->size = src->size;
 }
 
 
@@ -138,27 +146,23 @@ void linkedlist_copy(linkedlist_t *dst, linkedlist_t *src,
 /// \brief  Destroy a possibly non-empty sublist and fill it with a copy of list
 /// from position to its end.
 //  ----------------------------------------------------------------------------
-void linkedlist_sublist_copy(linkedlist_t * const sublist,
+void linkedlist_sublist_copy(linkedlist_t * const dst,
                              linkedlist_t * const list,
                              unsigned int const position,
                              unsigned int const data_size)
 {
-    if (list == NULL || sublist == NULL) {
-        fprintf(stderr, "%s: list or sublist is NULL.\n", __func__);
+    if (list == NULL || dst == NULL) {
+        fprintf(stderr, "%s: list or dst is NULL.\n", __func__);
         return;
     }
 
-    node_t *walker = list->head;
-
-    for (int index = 0; index < position; index++) {
-        walker = walker->next;
+    if (dst->head != NULL) {
+        linkedlist_destroy(dst);
     }
 
-    if (sublist->head != NULL) {
-        linkedlist_destroy(sublist);
-    }
-
-    sublist->head = nodes_recursive_copy(walker, data_size);
+    node_t *walker = nodes_walker(list->head, position);
+    dst->head = nodes_recursive_copy(walker, data_size);
+    dst->size = list->size - position;
 }
 
 
@@ -166,37 +170,16 @@ void linkedlist_sublist_copy(linkedlist_t * const sublist,
 /// \brief  Cross lists by changing the .next pointer of the node before
 /// position. Special case when trying to cross from index 0 is taken care of.
 //  ----------------------------------------------------------------------------
-void linkedlist_cross(linkedlist_t * const list_a,
-                      unsigned int const pos_a,
-                      linkedlist_t * const list_b,
-                      unsigned int const pos_b)
+void linkedlist_cross(linkedlist_t * const list_a, int const pos_a,
+                      linkedlist_t * const list_b, int const pos_b)
 {
     if (list_a == NULL || list_b == NULL) {
         fprintf(stderr, "%s: one of the input lists is NULL.\n", __func__);
         return;
     }
 
-    node_t *walker_a = list_a->head;
-    // -1 because its the node *pointing to* pos that needs changing.
-    // index needs to be signed, comparison value may be negative.
-    for (int index = 0; index < (int) pos_a - 1; index++) {
-        walker_a = walker_a->next;
-        if (walker_a == NULL) {
-            fprintf(stderr, "%s: list_a reached unexpected termination.\n",
-                    __func__);
-            return;
-        }
-    }
-
-    node_t *walker_b = list_b->head;
-    for (int index = 0; index < (int) pos_b - 1; index++) {
-        walker_b = walker_b->next;
-        if (walker_b == NULL) {
-            fprintf(stderr, "%s: list_b reached unexpected termination.\n",
-                    __func__);
-            return;
-        }
-    }
+    node_t *walker_a = nodes_walker(list_a->head, pos_a - 1);
+    node_t *walker_b = nodes_walker(list_b->head, pos_b - 1);
 
     node_t *start_of_new_part_for_list_b = walker_a->next;
 
@@ -211,6 +194,22 @@ void linkedlist_cross(linkedlist_t * const list_a,
         list_b->head = walker_a->next;
     } else {
         walker_b->next = start_of_new_part_for_list_b;
+    }
+
+    // Update the sizes and truncate if a list grows above max.
+    int old_list_a_size = list_a->size;
+    long new_size_a = (long) pos_a + list_b->size - pos_b;
+    if (new_size_a > LINKEDLIST_MAX_SIZE) {
+        length_limit(list_a, LINKEDLIST_MAX_SIZE);
+    } else {
+        list_a->size = new_size_a;
+    }
+
+    long new_size_b = (long) pos_b + old_list_a_size - pos_a;
+    if (new_size_b > LINKEDLIST_MAX_SIZE) {
+        length_limit(list_b, LINKEDLIST_MAX_SIZE);
+    } else {
+        list_b->size = new_size_b;
     }
 }
 
@@ -228,6 +227,23 @@ void *linkedlist_data_handle_get(linkedlist_t * const list,
     node_t *walker = nodes_walker(list->head, position);
 
     return (void *) walker->data;
+}
+
+
+//  ----------------------------------------------------------------------------
+/// \brief  Get the list size from the structs data. Not actually going through
+/// the list to its end.
+/// \param  list The list of which the size is to be returned.
+/// \return The size of the list.
+//  ----------------------------------------------------------------------------
+int linkedlist_size_get(linkedlist_t * const list)
+{
+    if (list == NULL) {
+        fprintf(stderr, "%s: list is NULL.\n", __func__);
+        return 0;
+    } else {
+        return list->size;
+    }
 }
 
 
@@ -309,13 +325,13 @@ static node_t *nodes_recursive_copy(node_t * const src,
 /// \brief Walk pos number of nodes from start. If the tail of a list is
 /// reached, go on from head (wrap around).
 /// \param  start   The first node.
-/// \param  pos     Number of steps to take.
+/// \param  pos     Number of steps to take. May be negative.
 /// \return Pointer to the target node.
 //  ----------------------------------------------------------------------------
-static node_t *nodes_walker(node_t * const start, unsigned int const pos)
+static node_t *nodes_walker(node_t * const start, int const pos)
 {
     node_t *walker = start;
-    for (unsigned int i = 0; i < pos; i++) {
+    for (int i = 0; i < pos; i++) {
         if (walker->next != NULL) {
             walker = walker->next;
         } else {
@@ -324,4 +340,22 @@ static node_t *nodes_walker(node_t * const start, unsigned int const pos)
         }
     }
     return walker;
+}
+
+
+//  ----------------------------------------------------------------------------
+/// \brief  Truncate the list after position limit.
+/// \param  list    The list to truncate.
+/// \param  limit   The max size of the resulting list.
+//  ----------------------------------------------------------------------------
+static void length_limit(linkedlist_t * const list, int const limit)
+{
+    if (limit <= list->size) {
+        return;
+    }
+
+    node_t *walker = nodes_walker(list->head, limit - 1);
+    nodes_recursive_destroy(walker->next);
+    walker->next = NULL;
+    list->size = limit;
 }
