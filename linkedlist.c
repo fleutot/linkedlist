@@ -10,7 +10,6 @@ Copyright (c) 2013 Gauthier Fleutot Ostervall
 #include <string.h>
 
 typedef struct node_t {
-    bool allocated_here;    // flag to free memory at destroy.
     void const *data;       // Generic data type pointer.
     struct node_t *next;
 } node_t;
@@ -81,8 +80,11 @@ void linkedlist_add(linkedlist_t *dst, void const * const data)
 
     // Create a whole new node.
     node_t *new_node_p = malloc(sizeof (node_t));
+    if (new_node_p == NULL) {
+        fprintf(stderr, "%s: new_node_p is NULL.\n", __func__);
+        return;
+    }
     *new_node_p = (node_t) {
-        .allocated_here = false,
         .data = data,
         .next = NULL
     };
@@ -318,7 +320,6 @@ static node_t *nodes_recursive_copy(node_t * const src,
     // Create a whole new node.
     node_t *new_node_p = malloc(sizeof (node_t));
     *new_node_p = (node_t) {
-        .allocated_here = true, // for freeing memory at destroy.
         .data = new_data,
         .next = nodes_recursive_copy(src->next, data_size)
     };
