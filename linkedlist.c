@@ -64,6 +64,8 @@ linkedlist_t *linkedlist_create(void)
 /// data. Allocate memory for the new node, walk through the list to its end,
 /// and link to the new node. If the list was empty before being added to, the
 /// new start of list is the new node itseld.
+/// \attention  The data object must be dynamically allocated since the list
+/// destroy function uses free() on all data objects.
 //  ----------------------------------------------------------------------------
 void linkedlist_add(linkedlist_t *dst, void const * const data)
 {
@@ -262,7 +264,7 @@ static void nodes_recursive_destroy(node_t *node_p)
         return;
     } else {
         node_t *rest_of_nodes = node_p->next;
-        if (node_p->allocated_here == true) {
+        if (node_p->data != NULL) {
             free((void *) node_p->data);
         }
         free(node_p);

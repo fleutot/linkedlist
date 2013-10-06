@@ -9,6 +9,7 @@ Copyright (c) 2013 Gauthier Fleutot Ostervall
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <malloc.h>
 
 //******************************************************************************
 // Module macros
@@ -348,8 +349,15 @@ static void list_populate(linkedlist_t * const list,
                           const int data[],
                           const unsigned int number_of_elements)
 {
-    for (unsigned int index = 0; index < number_of_elements; index++) {
-        linkedlist_add(list, &data[index]);
+    for (unsigned int i = 0; i < number_of_elements; i++) {
+        int *new_data_object = malloc(sizeof(int));
+        if (new_data_object == NULL) {
+            fprintf(stderr, "%s: new_data_object is NULL.\n", __func__);
+            linkedlist_destroy(list);
+            return;
+        }
+        *new_data_object = data[i];
+        linkedlist_add(list, new_data_object);
     }
 }
 

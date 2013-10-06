@@ -24,9 +24,12 @@ linkedlist_t *linkedlist_create(void);
 //  ----------------------------------------------------------------------------
 /// \brief  Link a new node at the end of the destination list.
 /// \param  dst Destination list.
-/// \param  data Pointer to the data content of the new node.
+/// \param  data Pointer to the data content of the new node. Memory must be
+/// dynamically allocated.
 /// \return The updated list. This is useful if dst was empty before calling
 /// this function.
+/// \attention  The data object pointed to by data must be allocated
+/// dynamically. Addresses to auto or global variables may not be used.
 //  ----------------------------------------------------------------------------
 void linkedlist_add(linkedlist_t *dst, void const * const data);
 
