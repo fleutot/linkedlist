@@ -1,0 +1,6 @@
+* Tasks
+** TODO Better dependency checking in makefile
+Check for changes in header files.
+
+** TODO Generic error messages
+To avoid writing so many fprintf. Write a macro so you still can use __func__.
