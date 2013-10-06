@@ -36,12 +36,12 @@ static unsigned int read_array_current_index;
 static void display(void const * const a);
 static void list_populate(linkedlist_t * const list,
                           const int data[],
-                          const unsigned int number_of_elements);
+                          const int number_of_elements);
 static void list_read_to_array_reset(void);
 static void list_read_to_array(void const * const a);
 static bool int_arrays_equal(int const * const a,
                              int const * const b,
-                             const unsigned int size);
+                             const int size);
 
 // Test functions.
 static void test_linkedlist_init(void);
@@ -315,6 +315,10 @@ static void test_linkedlist_data_handle_get(void)
 //------------------------------------------------------------------------------
 // Helper functions
 //------------------------------------------------------------------------------
+
+//  ----------------------------------------------------------------------------
+/// \brief  Reset the function that puts the content of a list to an array.
+//  ----------------------------------------------------------------------------
 static void list_read_to_array_reset(void)
 {
     for (unsigned int i = 0; i < NB_ELEMENTS(read_array); i++) {
@@ -323,8 +327,12 @@ static void list_read_to_array_reset(void)
     read_array_current_index = 0;
 }
 
-// This function is meant to be used as a parameter of linkedlist_run_for_all,
-// hence the parameter format.
+// ----------------------------------------------------------------------------
+/// \brief Put the content of a list to an array. Needs resetting first (see
+/// list_read_to_array_reset()). This function is meant to be used as a
+/// parameter of linkedlist_run_for_all, hence the parameter format.
+/// \param  Pointer to the data of a node.
+//  ----------------------------------------------------------------------------
 static void list_read_to_array(void const * const a)
 {
     read_array[read_array_current_index] = * (int *) a;
@@ -336,20 +344,28 @@ static void list_read_to_array(void const * const a)
     }
 }
 
-
-// This function is meant to be used as a parameter of linkedlist_run_for_all,
-// hence the parameter format.
+// ----------------------------------------------------------------------------
+/// \brief Display the content of the data of a node. This function is meant to
+/// be used as a parameter of / linkedlist_run_for_all, hence the parameter
+/// format.
+/// \param  Pointer to the data of a node.
+//  ----------------------------------------------------------------------------
 static void display(void const * const a)
 {
     printf("d: %d\n", *(int *) a);
 }
 
-
+//  ----------------------------------------------------------------------------
+/// \brief  Populate an existing list with the content of an array.
+/// \param  list The list to populate. Normally empty at the beginning.
+/// \param  data The actual data array to fill the list with.
+/// \param  number_of_elements The size of the data array.
+//  ----------------------------------------------------------------------------
 static void list_populate(linkedlist_t * const list,
                           const int data[],
-                          const unsigned int number_of_elements)
+                          const int number_of_elements)
 {
-    for (unsigned int i = 0; i < number_of_elements; i++) {
+    for (int i = 0; i < number_of_elements; i++) {
         int *new_data_object = malloc(sizeof(int));
         if (new_data_object == NULL) {
             fprintf(stderr, "%s: new_data_object is NULL.\n", __func__);
@@ -361,11 +377,18 @@ static void list_populate(linkedlist_t * const list,
     }
 }
 
+//  ----------------------------------------------------------------------------
+/// \brief  Check if two arrays have the same content.
+/// \param  a   Pointer to one of the array to compare.
+/// \param  b   Pointer to one of the array to compare.
+/// \param  size    Number of elements in the arrays to compare.
+/// \return True if the arrays had the same content.
+//  ----------------------------------------------------------------------------
 static bool int_arrays_equal(int const * const a,
                              int const * const b,
-                             const unsigned int size)
+                             const int size)
 {
-    for (unsigned int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
         if (a[i] != b[i]) {
             return false;
         }

@@ -8,7 +8,7 @@ Copyright (c) 2013 Gauthier Fleutot Ostervall
 #include <stddef.h>
 
 // Sizes are saved as int, make sure this MAX_SIZE is under INT_MAX.
-#define LINKEDLIST_MAX_SIZE (50000U)
+#define LINKEDLIST_MAX_SIZE (5000U)
 
 // Do not create your own linkedlist_t variables, use the function
 // linkedlist_create().
