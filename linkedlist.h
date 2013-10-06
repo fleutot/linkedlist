@@ -5,6 +5,8 @@ Copyright (c) 2013 Gauthier Fleutot Ostervall
 #ifndef LINKEDLIST_H_INCLUDED
 #define LINKEDLIST_H_INCLUDED
 
+#include <stddef.h>
+
 // Sizes are saved as int, make sure this MAX_SIZE is under INT_MAX.
 #define LINKEDLIST_MAX_SIZE (50000U)
 
@@ -48,7 +50,7 @@ void linkedlist_destroy(linkedlist_t *list);
 /// \param data_size The size of one data slot.
 // ----------------------------------------------------------------------------
 void linkedlist_copy(linkedlist_t *dst, linkedlist_t *src,
-                     unsigned int const data_size);
+                     size_t const data_size);
 
 
 //  ----------------------------------------------------------------------------
@@ -73,7 +75,7 @@ void linkedlist_run_for_all(linkedlist_t *list,
 void linkedlist_sublist_copy(linkedlist_t * const sublist,
                              linkedlist_t * const list,
                              unsigned int const position,
-                             unsigned int const data_size);
+                             size_t const data_size);
 
 //  ----------------------------------------------------------------------------
 /// \brief  Swap the ends of two lists, from defined node index.

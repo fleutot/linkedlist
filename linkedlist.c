@@ -35,7 +35,7 @@ static void nodes_recursive_destroy(node_t *node_p);
 static void nodes_run_for_all(node_t *node_p,
                               void (*callback)(void const * const data));
 static node_t *nodes_recursive_copy(node_t *src,
-                                    unsigned int const data_size);
+                                    size_t const data_size);
 static node_t *nodes_walker(node_t * const start, int const pos);
 static void length_limit(linkedlist_t * const list, int const limit);
 
@@ -132,10 +132,11 @@ void linkedlist_run_for_all(linkedlist_t *list,
 /// between src and dst.
 //  ----------------------------------------------------------------------------
 void linkedlist_copy(linkedlist_t *dst, linkedlist_t *src,
-                     unsigned int const data_size)
+                     size_t const data_size)
 {
     if (dst->head != NULL) {
-        linkedlist_destroy(dst);
+        // Do not destroy the dst object, only the genes.
+        nodes_recursive_destroy(dst->head);
     }
     dst->head = nodes_recursive_copy(src->head, data_size);
     dst->size = src->size;
@@ -149,7 +150,7 @@ void linkedlist_copy(linkedlist_t *dst, linkedlist_t *src,
 void linkedlist_sublist_copy(linkedlist_t * const dst,
                              linkedlist_t * const list,
                              unsigned int const position,
-                             unsigned int const data_size)
+                             size_t const data_size)
 {
     if (list == NULL || dst == NULL) {
         fprintf(stderr, "%s: list or dst is NULL.\n", __func__);
@@ -260,7 +261,7 @@ static void nodes_recursive_destroy(node_t *node_p)
     if (node_p == NULL) {
         return;
     } else {
-        node_t *rest_of_nodes = (*node_p).next;
+        node_t *rest_of_nodes = node_p->next;
         if (node_p->allocated_here == true) {
             free((void *) node_p->data);
         }
@@ -282,6 +283,9 @@ static void nodes_run_for_all(node_t *node_p,
     if (node_p == NULL) {
         return;
     } else {
+        if (node_p->data == NULL) {
+            fprintf(stderr, "%s: data pointer is NULL.\n", __func__);
+        }
         callback(node_p->data);
         nodes_run_for_all(node_p->next, callback);
     }
@@ -297,7 +301,7 @@ static void nodes_run_for_all(node_t *node_p,
 /// \return Pointer to the newly created node.
 //  ----------------------------------------------------------------------------
 static node_t *nodes_recursive_copy(node_t * const src,
-                                    unsigned int const data_size)
+                                    size_t const data_size)
 {
     if (src == NULL) {
         return NULL;

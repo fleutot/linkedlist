@@ -46,6 +46,7 @@ static bool int_arrays_equal(int const * const a,
 static void test_linkedlist_init(void);
 static void test_linkedlist_run_for_all(void);
 static void test_linkedlist_copy(void);
+static void test_linkedlist_copy_overwrite(void);
 static void test_linkedlist_sublist_copy(void);
 static void test_linkedlist_cross(void);
 static void test_linkedlist_cross_at_0(void);
@@ -61,6 +62,7 @@ int main(void)
     test_linkedlist_init();
     test_linkedlist_run_for_all();
     test_linkedlist_copy();
+    test_linkedlist_copy_overwrite();
     test_linkedlist_sublist_copy();
     test_linkedlist_cross();
     test_linkedlist_cross_at_0();
@@ -75,16 +77,19 @@ int main(void)
 //******************************************************************************
 static void test_linkedlist_init(void)
 {
+    fprintf(stdout, "Running %s...", __func__); fflush(stdout);
     linkedlist_t *list_p = linkedlist_create();
 
     assert(list_p != NULL);
 
     linkedlist_destroy(list_p);
+    fprintf(stdout, "OK\n");
 }
 
 
 static void test_linkedlist_run_for_all(void)
 {
+    fprintf(stdout, "Running %s...", __func__); fflush(stdout);
     int data[] = {1, 2, 3, 4, 5};
 
     linkedlist_t *list = linkedlist_create();
@@ -96,11 +101,13 @@ static void test_linkedlist_run_for_all(void)
     assert(int_arrays_equal(data, read_array, NB_ELEMENTS(data)));
 
     linkedlist_destroy(list);
+    fprintf(stdout, "OK\n");
 }
 
 
 static void test_linkedlist_copy(void)
 {
+    fprintf(stdout, "Running %s...", __func__); fflush(stdout);
     int data[] = {1, 2, 3, 4, 5};
 
     linkedlist_t *src = linkedlist_create();
@@ -118,11 +125,44 @@ static void test_linkedlist_copy(void)
 
     linkedlist_destroy(src);
     linkedlist_destroy(dst);
+    fprintf(stdout, "OK\n");
+}
+
+
+static void test_linkedlist_copy_overwrite(void)
+{
+    fprintf(stdout, "Running %s...", __func__); fflush(stdout);
+    int data1[] = {1, 2, 3, 4, 5};
+    int data2[] = {11, 12, 13, 14, 15};
+
+    linkedlist_t *src1 = linkedlist_create();
+    list_populate(src1, data1, NB_ELEMENTS(data1));
+
+    linkedlist_t *src2 = linkedlist_create();
+    list_populate(src2, data2, NB_ELEMENTS(data2));
+
+    linkedlist_t *dst = linkedlist_create();
+    linkedlist_copy(dst, src1, sizeof data1[0]);
+
+    linkedlist_copy(dst, src2, sizeof data2[0]);
+
+    list_read_to_array_reset();
+    linkedlist_run_for_all(dst, list_read_to_array);
+
+    assert(int_arrays_equal(data2, read_array, NB_ELEMENTS(data2)));
+
+    assert(linkedlist_size_get(src2) == linkedlist_size_get(dst));
+
+    linkedlist_destroy(src1);
+    linkedlist_destroy(src2);
+    linkedlist_destroy(dst);
+    fprintf(stdout, "OK\n");
 }
 
 
 static void test_linkedlist_sublist_copy(void)
 {
+    fprintf(stdout, "Running %s...", __func__); fflush(stdout);
     const unsigned int node_index = 2;
     int data[] = {1, 2, 3, 4, 5};
     int result[] = {3, 4, 5};
@@ -143,11 +183,13 @@ static void test_linkedlist_sublist_copy(void)
 
     linkedlist_destroy(list);
     linkedlist_destroy(sublist);
+    fprintf(stdout, "OK\n");
 }
 
 
 static void test_linkedlist_cross(void)
 {
+    fprintf(stdout, "Running %s...", __func__); fflush(stdout);
     const int data_a[] = {1, 2, 3, 4, 5};
     const int data_b[] = {11, 12, 13, 14, 15, 16, 17};
     const unsigned int pos_a = 4;
@@ -176,11 +218,13 @@ static void test_linkedlist_cross(void)
 
     linkedlist_destroy(list_a);
     linkedlist_destroy(list_b);
+    fprintf(stdout, "OK\n");
 }
 
 
 static void test_linkedlist_cross_at_0(void)
 {
+    fprintf(stdout, "Running %s...", __func__); fflush(stdout);
     const int data_a[] = {1, 2, 3, 4};
     const int data_b[] = {11, 12, 13, 14};
     unsigned int pos_a = 0;
@@ -209,11 +253,13 @@ static void test_linkedlist_cross_at_0(void)
 
     linkedlist_destroy(list_a);
     linkedlist_destroy(list_b);
+    fprintf(stdout, "OK\n");
 }
 
 
 static void test_linkedlist_cross_long(void)
 {
+    fprintf(stdout, "Running %s...", __func__); fflush(stdout);
     const int data_a[LINKEDLIST_MAX_SIZE - 10] = {0};
     const int data_b[20] = {0};
     const int pos_a = 1;
@@ -232,11 +278,13 @@ static void test_linkedlist_cross_long(void)
 
     linkedlist_destroy(list_a);
     linkedlist_destroy(list_b);
+    fprintf(stdout, "OK\n");
 }
 
 
 static void test_linkedlist_data_handle_get(void)
 {
+    fprintf(stdout, "Running %s...", __func__); fflush(stdout);
     const int data[] = {11, 12, 13, 14, 15};
     const unsigned int pos = 3;
 
@@ -259,6 +307,7 @@ static void test_linkedlist_data_handle_get(void)
     assert(*result_ptr == data[other_pos]);
 
     linkedlist_destroy(list);
+    fprintf(stdout, "OK\n");
 }
 
 
