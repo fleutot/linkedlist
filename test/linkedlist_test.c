@@ -17,6 +17,14 @@ Copyright (c) 2013 Gauthier Fleutot Ostervall
 // Number of elements in array x.
 #define NB_ELEMENTS(x) (sizeof (x) / sizeof (x[0]))
 
+#define TEST_START_PRINT()    do {              \
+        printf("Running %s...", __func__);      \
+    } while (0)
+
+#define TEST_END_PRINT()  do {                  \
+        printf("OK.\n");                        \
+    } while (0)
+
 
 //******************************************************************************
 // Module constants
@@ -49,6 +57,7 @@ static void test_linkedlist_run_for_all(void);
 static void test_linkedlist_copy(void);
 static void test_linkedlist_copy_overwrite(void);
 static void test_linkedlist_sublist_copy(void);
+static void test_linkedlist_compare(void);
 static void test_linkedlist_cross(void);
 static void test_linkedlist_cross_at_0(void);
 static void test_linkedlist_data_handle_get(void);
@@ -65,6 +74,7 @@ int main(void)
     test_linkedlist_copy();
     test_linkedlist_copy_overwrite();
     test_linkedlist_sublist_copy();
+    test_linkedlist_compare();
     test_linkedlist_cross();
     test_linkedlist_cross_at_0();
     test_linkedlist_cross_long();
@@ -78,19 +88,19 @@ int main(void)
 //******************************************************************************
 static void test_linkedlist_init(void)
 {
-    fprintf(stdout, "Running %s...", __func__); fflush(stdout);
+    TEST_START_PRINT();
     linkedlist_t *list_p = linkedlist_create();
 
     assert(list_p != NULL);
 
     linkedlist_destroy(list_p);
-    fprintf(stdout, "OK\n");
+    TEST_END_PRINT();
 }
 
 
 static void test_linkedlist_run_for_all(void)
 {
-    fprintf(stdout, "Running %s...", __func__); fflush(stdout);
+    TEST_START_PRINT();
     int data[] = {1, 2, 3, 4, 5};
 
     linkedlist_t *list = linkedlist_create();
@@ -102,13 +112,13 @@ static void test_linkedlist_run_for_all(void)
     assert(int_arrays_equal(data, read_array, NB_ELEMENTS(data)));
 
     linkedlist_destroy(list);
-    fprintf(stdout, "OK\n");
+    TEST_END_PRINT();
 }
 
 
 static void test_linkedlist_copy(void)
 {
-    fprintf(stdout, "Running %s...", __func__); fflush(stdout);
+    TEST_START_PRINT();
     int data[] = {1, 2, 3, 4, 5};
 
     linkedlist_t *src = linkedlist_create();
@@ -126,13 +136,13 @@ static void test_linkedlist_copy(void)
 
     linkedlist_destroy(src);
     linkedlist_destroy(dst);
-    fprintf(stdout, "OK\n");
+    TEST_END_PRINT();
 }
 
 
 static void test_linkedlist_copy_overwrite(void)
 {
-    fprintf(stdout, "Running %s...", __func__); fflush(stdout);
+    TEST_START_PRINT();
     int data1[] = {1, 2, 3, 4, 5};
     int data2[] = {11, 12, 13, 14, 15};
 
@@ -157,13 +167,13 @@ static void test_linkedlist_copy_overwrite(void)
     linkedlist_destroy(src1);
     linkedlist_destroy(src2);
     linkedlist_destroy(dst);
-    fprintf(stdout, "OK\n");
+    TEST_END_PRINT();
 }
 
 
 static void test_linkedlist_sublist_copy(void)
 {
-    fprintf(stdout, "Running %s...", __func__); fflush(stdout);
+    TEST_START_PRINT();
     const unsigned int node_index = 2;
     int data[] = {1, 2, 3, 4, 5};
     int result[] = {3, 4, 5};
@@ -184,13 +194,44 @@ static void test_linkedlist_sublist_copy(void)
 
     linkedlist_destroy(list);
     linkedlist_destroy(sublist);
-    fprintf(stdout, "OK\n");
+    TEST_END_PRINT();
 }
 
 
+static void test_linkedlist_compare(void)
+{
+    TEST_START_PRINT();
+    const int data_a[] = {1, 2, 3, 4};
+    const int data_b[] = {1, 2, 3, 5};
+    const int data_c[] = {5, 2, 3, 4};
+
+    linkedlist_t *list_a = linkedlist_create();
+    list_populate(list_a, data_a, NB_ELEMENTS(data_a));
+    linkedlist_t *list_b = linkedlist_create();
+    list_populate(list_b, data_b, NB_ELEMENTS(data_b));
+    linkedlist_t *list_c = linkedlist_create();
+    list_populate(list_c, data_c, NB_ELEMENTS(data_c));
+
+    // Same content as list_a.
+    linkedlist_t *list_d = linkedlist_create();
+    list_populate(list_d, data_a, NB_ELEMENTS(data_a));
+
+    assert(!linkedlist_compare(list_a, list_b, sizeof(data_a[0])));
+    assert(!linkedlist_compare(list_a, list_c, sizeof(data_a[0])));
+    assert(!linkedlist_compare(list_b, list_c, sizeof(data_b[0])));
+    assert(linkedlist_compare(list_a, list_d, sizeof(data_a[0])));
+
+    linkedlist_destroy(list_a);
+    linkedlist_destroy(list_b);
+    linkedlist_destroy(list_c);
+    linkedlist_destroy(list_d);
+
+    TEST_END_PRINT();
+}
+
 static void test_linkedlist_cross(void)
 {
-    fprintf(stdout, "Running %s...", __func__); fflush(stdout);
+    TEST_START_PRINT();
     const int data_a[] = {1, 2, 3, 4, 5};
     const int data_b[] = {11, 12, 13, 14, 15, 16, 17};
     const unsigned int pos_a = 4;
@@ -219,13 +260,13 @@ static void test_linkedlist_cross(void)
 
     linkedlist_destroy(list_a);
     linkedlist_destroy(list_b);
-    fprintf(stdout, "OK\n");
+    TEST_END_PRINT();
 }
 
 
 static void test_linkedlist_cross_at_0(void)
 {
-    fprintf(stdout, "Running %s...", __func__); fflush(stdout);
+    TEST_START_PRINT();
     const int data_a[] = {1, 2, 3, 4};
     const int data_b[] = {11, 12, 13, 14};
     unsigned int pos_a = 0;
@@ -254,13 +295,13 @@ static void test_linkedlist_cross_at_0(void)
 
     linkedlist_destroy(list_a);
     linkedlist_destroy(list_b);
-    fprintf(stdout, "OK\n");
+    TEST_END_PRINT();
 }
 
 
 static void test_linkedlist_cross_long(void)
 {
-    fprintf(stdout, "Running %s...", __func__); fflush(stdout);
+    TEST_START_PRINT();
     const int data_a[LINKEDLIST_MAX_SIZE - 10] = {0};
     const int data_b[20] = {0};
     const int pos_a = 1;
@@ -279,13 +320,13 @@ static void test_linkedlist_cross_long(void)
 
     linkedlist_destroy(list_a);
     linkedlist_destroy(list_b);
-    fprintf(stdout, "OK\n");
+    TEST_END_PRINT();
 }
 
 
 static void test_linkedlist_data_handle_get(void)
 {
-    fprintf(stdout, "Running %s...", __func__); fflush(stdout);
+    TEST_START_PRINT();
     const int data[] = {11, 12, 13, 14, 15};
     const unsigned int pos = 3;
 
@@ -308,7 +349,7 @@ static void test_linkedlist_data_handle_get(void)
     assert(*result_ptr == data[other_pos]);
 
     linkedlist_destroy(list);
-    fprintf(stdout, "OK\n");
+    TEST_END_PRINT();
 }
 
 

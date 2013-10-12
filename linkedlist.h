@@ -5,6 +5,7 @@ Copyright (c) 2013 Gauthier Fleutot Ostervall
 #ifndef LINKEDLIST_H_INCLUDED
 #define LINKEDLIST_H_INCLUDED
 
+#include <stdbool.h>
 #include <stddef.h>
 
 // Sizes are saved as int, make sure this MAX_SIZE is under INT_MAX.
@@ -79,6 +80,18 @@ void linkedlist_sublist_copy(linkedlist_t * const sublist,
                              linkedlist_t * const list,
                              unsigned int const position,
                              size_t const data_size);
+
+
+//  ----------------------------------------------------------------------------
+/// \brief  Compare the content of two lists (values of data, not pointers).
+/// \param  list_a
+/// \param  list_b
+/// \return True if the lists' data were equal.
+//  ----------------------------------------------------------------------------
+bool linkedlist_compare(linkedlist_t * const list_a,
+                        linkedlist_t * const list_b,
+                        size_t const data_size);
+
 
 //  ----------------------------------------------------------------------------
 /// \brief  Swap the ends of two lists, from defined node index.

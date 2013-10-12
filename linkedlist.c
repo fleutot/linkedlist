@@ -3,6 +3,7 @@ Copyright (c) 2013 Gauthier Fleutot Ostervall
 ----------------------------------------------------------------------------*/
 #include "linkedlist.h"
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -34,6 +35,8 @@ static void nodes_recursive_destroy(node_t *node_p);
 static void nodes_run_for_all(node_t *node_p,
                               void (*callback)(void const * const data));
 static node_t *nodes_recursive_copy(node_t *src,
+                                    size_t const data_size);
+static bool nodes_recursive_compare(node_t * const a, node_t * const b,
                                     size_t const data_size);
 static node_t *nodes_walker(node_t * const start, int const pos);
 static void length_limit(linkedlist_t * const list, int const limit);
@@ -168,6 +171,20 @@ void linkedlist_sublist_copy(linkedlist_t * const dst,
     node_t *walker = nodes_walker(list->head, position);
     dst->head = nodes_recursive_copy(walker, data_size);
     dst->size = list->size - position;
+}
+
+
+//  ----------------------------------------------------------------------------
+/// \brief  Compare the content of two lists (values of data, not pointers).
+//  ----------------------------------------------------------------------------
+bool linkedlist_compare(linkedlist_t * const list_a,
+                        linkedlist_t * const list_b,
+                        size_t const data_size)
+{
+    assert(list_a);
+    assert(list_b);
+
+    return nodes_recursive_compare(list_a->head, list_b->head, data_size);
 }
 
 
@@ -325,6 +342,32 @@ static node_t *nodes_recursive_copy(node_t * const src,
     };
 
     return new_node_p;
+}
+
+
+//  ----------------------------------------------------------------------------
+/// \brief  Compare the data of the current node, quit and return false if they
+/// differ, otherwise keep on compare the next node until reaching the end.
+/// \param  a   First node to compare.
+/// \param  b   Second node to compare.
+/// \param  data_size   The size of the data being pointed to by each node.
+/// \return True if the rest of the lists are equal.
+//  ----------------------------------------------------------------------------
+static bool nodes_recursive_compare(node_t * const a, node_t * const b,
+                                    size_t const data_size)
+{
+    if (a == NULL) {
+        if (b != NULL) {
+            return false;
+        }
+        return true;
+    }
+
+    if (memcmp(a->data, b->data, data_size) != 0) {
+        return false;
+    } else {
+        return nodes_recursive_compare(a->next, b->next, data_size);
+    }
 }
 
 
