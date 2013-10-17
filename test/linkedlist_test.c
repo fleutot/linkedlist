@@ -248,6 +248,7 @@ static void test_linkedlist_cross(void)
 
     linkedlist_cross(list_a, pos_a, list_b, pos_b);
 
+    // Load list data to an array for comparison.
     list_read_to_array_reset();
     linkedlist_run_for_all(list_a, list_read_to_array);
     assert(int_arrays_equal(result_a, read_array, NB_ELEMENTS(result_a)));

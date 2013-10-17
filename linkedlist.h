@@ -13,7 +13,7 @@ Copyright (c) 2013 Gauthier Fleutot Ostervall
 
 // Do not create your own linkedlist_t variables, use the function
 // linkedlist_create().
-typedef struct linkedlist linkedlist_t;
+typedef struct linkedlist_s linkedlist_t;
 
 //  ----------------------------------------------------------------------------
 /// \brief  Create a new empty list.

@@ -10,12 +10,12 @@ Copyright (c) 2013 Gauthier Fleutot Ostervall
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct node_t {
+typedef struct node_s {
     void const *data;       // Generic data type pointer.
-    struct node_t *next;
+    struct node_s *next;
 } node_t;
 
-struct linkedlist {
+struct linkedlist_s {
     int size;
     node_t *head;
 };
@@ -66,7 +66,7 @@ linkedlist_t *linkedlist_create(void)
 /// data. Allocate memory for the new node, walk through the list to its end,
 /// and link to the new node. If the list was empty before being added to, the
 /// new start of list is the new node itseld.
-/// \attention  The data object must be dynamically allocated since the list
+/// \attention  The data object must be dynamically allocated since the list's
 /// destroy function uses free() on all data objects.
 //  ----------------------------------------------------------------------------
 void linkedlist_add(linkedlist_t *dst, void const * const data)
